@@ -11,38 +11,12 @@ import {
     RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-// --- Utility ---
-function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
-}
+import { cn } from '../../lib/utils';
+import { type Donation, type Stats } from '../../types/donation';
+import { StatusBadge } from '../../components/StatusBadge';
+import { StatCard } from '../../components/StatCard';
 
 // --- Types ---
-type AiAnalysis = {
-    foodType: string;
-    estimatedMeals: number;
-    freshness: string;
-    notesForNGO: string;
-};
-
-type DonationStatus = "PENDING_NGO_CONFIRMATION" | "ACCEPTED" | "REJECTED" | "COLLECTED";
-
-type Donation = {
-    id: string;
-    restaurantName: string;
-    aiAnalysis: AiAnalysis;
-    status: DonationStatus;
-    createdAt: string;
-};
-
-type Stats = {
-    totalDonations: number;
-    totalMealsServed: number;
-    totalFoodSavedKg: number;
-};
-
 type NgoOption = {
     id: string;
     name: string;
@@ -105,7 +79,6 @@ const mockDonations: Donation[] = [
 const fetchStats = async (ngoId: string): Promise<Stats> => {
     return new Promise((resolve) => {
         setTimeout(() => {
-            // In a real app, we'd filter by ngoId or fetch from backend
             console.log(`Fetching stats for ${ngoId}`);
             resolve(mockStats);
         }, 800);
@@ -116,13 +89,12 @@ const fetchDonations = async (ngoId: string): Promise<Donation[]> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             console.log(`Fetching donations for ${ngoId}`);
-            // Return a copy to avoid mutating the mock directly in a weird way if we were persisting
             resolve([...mockDonations]);
         }, 1000);
     });
 };
 
-const updateDonationStatusApi = async (id: string, status: DonationStatus): Promise<void> => {
+const updateDonationStatusApi = async (id: string, status: Donation['status']): Promise<void> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             console.log(`Updating donation ${id} to ${status}`);
@@ -130,54 +102,6 @@ const updateDonationStatusApi = async (id: string, status: DonationStatus): Prom
         }, 500);
     });
 };
-
-// --- Components ---
-
-const StatusBadge = ({ status }: { status: DonationStatus }) => {
-    const styles = {
-        PENDING_NGO_CONFIRMATION: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-        ACCEPTED: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-        REJECTED: "bg-red-500/10 text-red-500 border-red-500/20",
-        COLLECTED: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    };
-
-    const labels = {
-        PENDING_NGO_CONFIRMATION: "Pending",
-        ACCEPTED: "Accepted",
-        REJECTED: "Rejected",
-        COLLECTED: "Collected",
-    };
-
-    return (
-        <span className={cn("text-xs px-2.5 py-1 rounded-full border font-medium", styles[status])}>
-            {labels[status]}
-        </span>
-    );
-};
-
-const StatCard = ({ title, value, unit, icon: Icon, color }: { title: string, value: number, unit?: string, icon: any, color: string }) => (
-    <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 p-6 rounded-2xl relative overflow-hidden group"
-    >
-        <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity ${color}`}>
-            <Icon size={64} />
-        </div>
-        <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-                <div className={`p-2 rounded-lg bg-gray-800 ${color} bg-opacity-20`}>
-                    <Icon size={20} className={color.replace('bg-', 'text-')} />
-                </div>
-                <span className="text-gray-400 text-sm font-medium">{title}</span>
-            </div>
-            <div className="text-3xl font-bold text-white">
-                {value}
-                {unit && <span className="text-lg text-gray-500 ml-1 font-normal">{unit}</span>}
-            </div>
-        </div>
-    </motion.div>
-);
 
 export default function NgoDashboard() {
     const [selectedNgo, setSelectedNgo] = useState<string>(NGO_OPTIONS[0].id);
@@ -206,7 +130,7 @@ export default function NgoDashboard() {
         loadData();
     }, [selectedNgo]);
 
-    const handleStatusUpdate = async (id: string, newStatus: DonationStatus) => {
+    const handleStatusUpdate = async (id: string, newStatus: Donation['status']) => {
         setProcessingId(id);
         try {
             await updateDonationStatusApi(id, newStatus);
@@ -323,17 +247,17 @@ export default function NgoDashboard() {
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-8 text-sm text-gray-400">
                                                     <div className="flex items-center gap-2">
                                                         <Utensils size={14} className="text-gray-500" />
-                                                        <span className="text-gray-300">{donation.aiAnalysis.foodType}</span>
+                                                        <span className="text-gray-300">{donation.aiAnalysis?.foodType}</span>
                                                         <span className="text-gray-600">•</span>
-                                                        <span>~{donation.aiAnalysis.estimatedMeals} meals</span>
+                                                        <span>~{donation.aiAnalysis?.estimatedMeals} meals</span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <Clock size={14} className="text-gray-500" />
-                                                        <span>{donation.aiAnalysis.freshness}</span>
+                                                        <span>{donation.aiAnalysis?.freshness}</span>
                                                     </div>
                                                 </div>
 
-                                                {donation.aiAnalysis.notesForNGO && (
+                                                {donation.aiAnalysis?.notesForNGO && (
                                                     <div className="text-sm bg-blue-500/5 text-blue-200/80 p-3 rounded-lg border border-blue-500/10 inline-block">
                                                         <span className="font-semibold text-blue-400 text-xs uppercase tracking-wider mr-2">Note:</span>
                                                         {donation.aiAnalysis.notesForNGO}
