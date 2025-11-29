@@ -134,7 +134,7 @@ export default function LandingPage() {
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-600/20">
-                            <Leaf size={16} className="text-white" />
+                            <Soup size={16} className="text-white" />
                         </div>
                         <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
                             Platr
