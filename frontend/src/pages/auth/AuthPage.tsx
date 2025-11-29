@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ChefHat,
     HeartHandshake,
@@ -16,8 +16,11 @@ type UserRole = 'RESTAURANT' | 'NGO';
 
 export default function AuthPage() {
     const navigate = useNavigate();
-    const [mode, setMode] = useState<AuthMode>('LOGIN');
-    const [role, setRole] = useState<UserRole | null>(null);
+    const location = useLocation();
+    const { initialMode, initialRole } = location.state || {};
+
+    const [mode, setMode] = useState<AuthMode>(initialMode || 'LOGIN');
+    const [role, setRole] = useState<UserRole | null>(initialRole || null);
     const [loading, setLoading] = useState(false);
 
     // Form State
