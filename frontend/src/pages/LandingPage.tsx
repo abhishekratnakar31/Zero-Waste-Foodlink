@@ -200,7 +200,7 @@ export default function LandingPage() {
             </section>
 
             {/* Impact Section */}
-            <section className="sticky top-0 h-screen w-full z-10 bg-[#0a0a0a] text-white flex items-center justify-center px-6">
+            <section className="sticky top-0 h-screen w-full z-10 bg-white dark:bg-stone-950 text-white flex items-center justify-center px-6">
                 <div className="max-w-7xl mx-auto w-full">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {[
