@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type Donation } from '../../types/donation';
+import { createDonation } from '../../api/donations';
 
 interface CreateDonationModalProps {
     isOpen: boolean;
@@ -25,9 +26,12 @@ export default function CreateDonationModal({ isOpen, onClose, onCreate }: Creat
         image: null as string | null
     });
 
+    const [imageFile, setImageFile] = useState<File | null>(null);
+
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setImageFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setFormData({ ...formData, image: reader.result as string });
@@ -40,29 +44,28 @@ export default function CreateDonationModal({ isOpen, onClose, onCreate }: Creat
         e.preventDefault();
         setIsSubmitting(true);
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        try {
+            const data = new FormData();
+            data.append('foodName', formData.foodType);
+            data.append('quantity', formData.quantity);
+            data.append('description', formData.notes || 'No description');
+            data.append('longitude', '77.5946'); // Mock location for now
+            data.append('latitude', '12.9716');
 
-        const newDonation: Donation = {
-            _id: `d${Date.now()}`,
-            id: `d${Date.now()}`,
-            ngoName: "Pending Assignment",
-            foodName: formData.foodType,
-            foodType: formData.foodType,
-            quantity: `${formData.quantity} meals`,
-            quantityMeals: parseInt(formData.quantity) || 0,
-            status: "PENDING_NGO_CONFIRMATION",
-            createdAt: new Date().toISOString(),
-            expiresAt: new Date(Date.now() + 24 * 3600000).toISOString(), // Default 24h
-            impact: { co2SavedKg: (parseInt(formData.quantity) || 0) * 0.5 },
-            imageUrl: formData.image || undefined,
-            location: { type: "Point", coordinates: [0, 0] } // Placeholder
-        };
+            if (imageFile) {
+                data.append('image', imageFile);
+            }
 
-        onCreate(newDonation);
-        setIsSubmitting(false);
-        onClose();
-        setFormData({ foodType: '', quantity: '', freshness: 'Good for 24 hours', notes: '', image: null });
+            const newDonation = await createDonation(data);
+            onCreate(newDonation.data);
+            onClose();
+            setFormData({ foodType: '', quantity: '', freshness: 'Good for 24 hours', notes: '', image: null });
+            setImageFile(null);
+        } catch (error) {
+            console.error('Failed to create donation', error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (

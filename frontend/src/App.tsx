@@ -11,33 +11,36 @@ import NotFound from './pages/NotFound';
 import { ThemeProvider } from './context/ThemeContext';
 import { CursorEffect } from './components/ui/CursorEffect';
 import { CurveTransitionProvider } from './components/ui/CurveTransition';
+import { AuthProvider } from './context/AuthContext';
 
 
 function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <CurveTransitionProvider>
-        <CursorEffect />
-        <BrowserRouter>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<LandingPage />} />
+        <AuthProvider>
+          <CursorEffect />
+          <BrowserRouter>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<LandingPage />} />
 
-            <Route path="/auth" element={<AuthPage />} />
+              <Route path="/auth" element={<AuthPage />} />
 
-            {/* Protected Routes (Wrapped in DashboardLayout) */}
-            <Route element={<DashboardLayout />}>
-              <Route path="/ngo-dashboard" element={<NgoDashboard />} />
-              <Route path="/restaurant-dashboard" element={<RestaurantDashboard />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/history" element={<HistoryPage />} />
-              <Route path="/history/:id" element={<DonationDetailsPage />} />
-            </Route>
+              {/* Protected Routes (Wrapped in DashboardLayout) */}
+              <Route element={<DashboardLayout />}>
+                <Route path="/ngo-dashboard" element={<NgoDashboard />} />
+                <Route path="/restaurant-dashboard" element={<RestaurantDashboard />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/history" element={<HistoryPage />} />
+                <Route path="/history/:id" element={<DonationDetailsPage />} />
+              </Route>
 
-            {/* 404 Route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+              {/* 404 Route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
       </CurveTransitionProvider>
     </ThemeProvider>
   );

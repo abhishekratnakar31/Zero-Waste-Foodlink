@@ -36,7 +36,8 @@ exports.createDonation = async (req, res, next) => {
     }
 
     const donation = await Donation.create({
-      restaurantName: req.body.restaurantName || 'Anonymous', // Fallback if not in body
+      restaurantName: req.user.name,
+      createdBy: req.user.id,
       foodName: analysis.foodName || req.body.foodName,
       description: analysis.description || req.body.description,
       quantity: analysis.estimatedQuantity || req.body.quantity,
@@ -129,18 +130,12 @@ exports.getNearbyDonations = async (req, res, next) => {
 // @access  Public
 exports.claimDonation = async (req, res, next) => {
   try {
-    const { ngoId } = req.body;
-
-    if (!ngoId) {
-      return res.status(400).json({ success: false, error: 'NGO ID is required' });
-    }
-
     const donation = await Donation.findOneAndUpdate(
       { _id: req.params.id, isClaimed: false },
       {
         $set: {
           isClaimed: true,
-          claimedBy: ngoId,
+          claimedBy: req.user.id,
           claimedAt: new Date()
         }
       },

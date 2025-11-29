@@ -9,8 +9,10 @@ import {
     Loader2,
     Leaf,
     ChefHat,
-    HeartHandshake
+    HeartHandshake,
+    AlertCircle
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 type AuthMode = 'LOGIN' | 'SIGNUP';
 type UserRole = 'RESTAURANT' | 'NGO';
@@ -29,20 +31,32 @@ export default function AuthPage() {
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
 
+    const { login, register, error: authError } = useAuth();
+    const [error, setError] = useState<string | null>(null);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!role) return;
+        setError(null);
 
         setLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            setLoading(false);
+        try {
+            if (mode === 'LOGIN') {
+                await login({ email, password });
+            } else {
+                await register({ name, email, password, role });
+            }
+
             if (role === 'NGO') {
                 navigate('/ngo-dashboard');
             } else {
                 navigate('/restaurant-dashboard');
             }
-        }, 1500);
+        } catch (err: any) {
+            setError(err.response?.data?.message || authError || 'Authentication failed');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -209,6 +223,13 @@ export default function AuthPage() {
                                             : 'Fill in your details to get started'}
                                     </p>
                                 </div>
+
+                                {error && (
+                                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
+                                        <AlertCircle size={16} />
+                                        {error}
+                                    </div>
+                                )}
 
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     {mode === 'SIGNUP' && (

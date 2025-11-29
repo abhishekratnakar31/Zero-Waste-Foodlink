@@ -6,6 +6,11 @@ const donationSchema = new mongoose.Schema({
     required: [true, 'Please add a restaurant name'],
     trim: true
   },
+  createdBy: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+    required: true
+  },
   foodName: {
     type: String,
     required: [true, 'Please add food name'],
@@ -61,7 +66,7 @@ const donationSchema = new mongoose.Schema({
   },
   claimedBy: {
     type: mongoose.Schema.ObjectId,
-    ref: 'NGO',
+    ref: 'User',
     default: null
   },
   claimedAt: {

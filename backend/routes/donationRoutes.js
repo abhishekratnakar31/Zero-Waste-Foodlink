@@ -9,10 +9,12 @@ const {
 } = require('../controllers/donationController');
 const upload = require('../middleware/upload');
 
-router.post('/', upload.single('image'), createDonation);
-router.get('/', getDonations);
-router.post('/analyze', upload.single('image'), analyzeImageForForm);
-router.get('/nearby', getNearbyDonations);
-router.post('/:id/claim', claimDonation);
+const { protect } = require('../middleware/authMiddleware');
+
+router.post('/', protect, upload.single('image'), createDonation);
+router.get('/', protect, getDonations);
+router.post('/analyze', protect, upload.single('image'), analyzeImageForForm);
+router.get('/nearby', protect, getNearbyDonations);
+router.post('/:id/claim', protect, claimDonation);
 
 module.exports = router;

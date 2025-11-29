@@ -18,6 +18,7 @@ import { StatCard } from '../../components/StatCard';
 import CreateDonationModal from './CreateDonationModal';
 import { ImageModal } from '../../components/ImageModal';
 import { Image as ImageIcon } from 'lucide-react';
+import { getDonations } from '../../api/donations';
 
 // --- Mock Data ---
 const mockStats: Stats = {
@@ -92,13 +93,16 @@ export default function RestaurantDashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [viewingImage, setViewingImage] = useState<string | null>(null);
 
-    const loadData = () => {
+    const loadData = async () => {
         setLoading(true);
-        // Simulate loading
-        setTimeout(() => {
-            setDonations(mockDonations);
+        try {
+            const data = await getDonations();
+            setDonations(data.data);
+        } catch (error) {
+            console.error('Failed to load donations', error);
+        } finally {
             setLoading(false);
-        }, 800);
+        }
     };
 
     useEffect(() => {
